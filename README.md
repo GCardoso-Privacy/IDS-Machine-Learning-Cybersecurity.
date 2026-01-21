@@ -80,10 +80,3 @@ pip install -r requirements.txt
 Garanta que os dados estão na pasta (via script ou manual).
 
 Execute os notebooks na ordem numérica (01 a 04) ou carregue o modelo pronto da pasta `Modelos/`.
-
-```
-
----
-
-
-```
