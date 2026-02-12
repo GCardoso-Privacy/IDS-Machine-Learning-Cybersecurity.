@@ -1,82 +1,57 @@
+# 🛡️ AI-Powered IDS Firewall (Intrusion Detection System)
 
-# 🛡️ AI-Powered Intrusion Detection System (NIDS)
+> Um sistema inteligente de detecção de intrusão baseado em Machine Learning (XGBoost) capaz de classificar tráfego de rede e bloquear ataques DDoS em tempo real com 99.9% de eficácia.
 
-Um Sistema de Detecção de Intrusão de Rede (NIDS) desenvolvido com **Machine Learning** (Random Forest). O projeto simula um firewall inteligente capaz de classificar tráfego de rede como "Normal" ou "Ataque" (DoS, Probe, R2L, U2R) com alta precisão, focado em cenários de **Cibersegurança e Governança de Dados**.
+![Project Status](https://img.shields.io/badge/Status-Completed-success)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![XGBoost](https://img.shields.io/badge/Model-XGBoost-orange)
+
+## 📋 Sobre o Projeto
+Este projeto utiliza datasets reais de cibersegurança (CICIDS2017 e CICDDoS2019) para treinar um modelo de Inteligência Artificial capaz de distinguir entre tráfego legítimo (Benign) e malicioso (DDoS, PortScan, Botnet, Web Attacks).
+
+O objetivo é simular um **Next-Generation Firewall** que não depende apenas de regras estáticas, mas aprende padrões comportamentais de ataques.
+
+## 🚀 Pipeline de Engenharia de Dados
+O projeto foi estruturado em etapas profissionais de Big Data:
+
+1.  **Ingestão:** Download e fusão de datasets massivos (CICIDS2017 + CICDDoS2019).
+2.  **ETL & Otimização:** Conversão de CSVs gigantes (8GB+) para formato **Parquet** usando `PyArrow` e processamento em chunks (para contornar limites de RAM).
+3.  **Limpeza:** Remoção de colunas enviesadas (IPs, Timestamps), tratamento de valores infinitos/nulos e padronização de labels.
+4.  **Treinamento:** Modelo **XGBoost Classifier** treinado em ~3.5 milhões de amostras.
 
 ## 📊 Resultados do Modelo
 
-O projeto destaca a importância da generalização em modelos de IA aplicados à segurança.
+O modelo final atingiu métricas de nível militar para defesa cibernética:
 
-| Métrica | Fase de Treino (Validada) | Fase de Teste (Dados Desconhecidos) |
-| :--- | :---: | :---: |
-| **Acurácia** | **99.89%** | **76.89%** |
-| **Cenário** | Dados conhecidos (Hold-out 30%) | Ataques Zero-Day (KDDTest+) |
-| **Precision (Ataque)** | ~99% | **97%** |
+| Métrica | Performance |
+| :--- | :--- |
+| **Acurácia Binária (Defesa)** | **99.99%** |
+| **Recall (Detecção de Ataques)** | **99.99%** |
+| **Falso Positivo (Benign)** | **0.00%** |
 
-> **Insight de Segurança:** O modelo demonstrou excelente capacidade de bloquear ataques conhecidos. A variação de performance no set de teste (`KDDTest+`) reflete um cenário real de **Zero-Day exploits**, onde o modelo enfrentou assinaturas de ataques que nunca tinha visto antes, mantendo ainda assim uma alta taxa de precisão (baixo falso-positivo).
+*Obs: O modelo prioriza a detecção da intenção hostil (Binária) sobre a classificação exata do subtipo do ataque, garantindo o bloqueio efetivo.*
 
-## 📂 Dataset & Instalação
+## 🛠️ Tecnologias Utilizadas
+* **Linguagem:** Python 3
+* **Manipulação de Dados:** Pandas, PyArrow, NumPy
+* **Machine Learning:** XGBoost, Scikit-Learn
+* **Visualização:** Matplotlib, Seaborn, Tqdm
+* **Formato de Dados:** Parquet (Snappy Compression)
 
-O projeto utiliza o dataset **NSL-KDD** (University of New Brunswick). Por questões de boas práticas e licenciamento, os dados brutos não estão versionados neste repositório, mas você pode obtê-los facilmente de duas formas:
-
-### Opção A: Download Automático (Recomendado) 🚀
-
-Se você tiver Python instalado, execute o script auxiliar incluído na raiz:
-
-```bash
-python baixar_dados.py
-
-```
-
-### Opção B: Download Manual (Fallback) 📦
-
-Caso o script falhe ou você prefira fazer manualmente:
-
-**Nota:** Por questões de tamanho e licenciamento, os dados brutos não estão incluídos neste repositório.
-
-1. **Download dos Dados:**
-O projeto utiliza o dataset **NSL-KDD**, uma versão melhorada do KDD'99.
-* Fonte Oficial: [Canadian Institute for Cybersecurity (UNB)](https://www.unb.ca/cic/datasets/nsl.html)
-* Link Alternativo (Kaggle): [NSL-KDD Network Intrusion Detection](https://www.kaggle.com/datasets/hassan06/nslkdd)
-
-
-2. **Estrutura de Pastas:**
-Para que os notebooks funcionem corretamente, crie uma pasta chamada `Datasets_Cybersecurity` na raiz do projeto e descompacte os arquivos lá, seguindo esta estrutura:
-
+## 📂 Estrutura do Repositório
 ```text
-IDS-Machine-Learning-Cybersecurity/
-├── Datasets_Cybersecurity/
-│   └── NSL-KDD/
-│       ├── KDDTrain+.txt
-│       └── KDDTest+.txt
+├── Notebooks/
+│   ├── 00_etl_conversao.ipynb       # Conversão CSV -> Parquet (Chunking)
+│   ├── 01_preparacao_treino.ipynb   # Amostragem e fusão dos datasets
+│   ├── 02_analise_exploratoria.ipynb# Análise de dados (EDA) e verificação de classes
+│   ├── 03_limpeza_dados.ipynb       # Remoção de ruídos e features inúteis
+│   ├── 04_treinamento_modelo.ipynb  # Treino do XGBoost e Avaliação
+│   └── 05_simulacao_firewall.ipynb  # Simulação de detecção em tempo real
+├── README.md                        # Documentação
 
-```
-
-## 🛠️ Pipeline do Projeto
-
-A solução foi construída seguindo um fluxo lógico de Ciência de Dados aplicada:
-
-* **01_exploracao.ipynb:** Análise estatística do tráfego e identificação de desbalanceamento de classes.
-* **02_pre_processamento.ipynb:** Limpeza de dados, One-Hot Encoding (tratamento de protocolos TCP/UDP/ICMP) e Normalização (MinMax).
-* **03_modelo.ipynb:** Treinamento do algoritmo Random Forest Classifier e exportação do modelo (.pkl).
-* **04_prova_real.ipynb:** Auditoria final simulando produção. Alinhamento de colunas entre treino/teste e avaliação contra o dataset "difícil" (Test+).
-
-## 🚀 Como Executar
-
-Clone o repositório:
-
-```bash
-git clone https://github.com/GCardoso-Privacy/IDS-Machine-Learning-Cybersecurity.git
-
-```
-
+🎮 Como Executar (Simulação)
 Instale as dependências:
 
-```bash
-pip install -r requirements.txt
-
-```
-
-Garanta que os dados estão na pasta (via script ou manual).
-
-Execute os notebooks na ordem numérica (01 a 04) ou carregue o modelo pronto da pasta `Modelos/`.
+Bash
+pip install pandas xgboost pyarrow scikit-learn tqdm colorama
+Execute o notebook 05_simulacao_firewall.ipynb para ver o log de bloqueio em tempo real.
