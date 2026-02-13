@@ -73,19 +73,15 @@ Para demonstrar a aplicabilidade real do modelo (além dos notebooks), foi desen
 ├── baixar_dados.py                  # Script de Automação de Download
 ├── requirements.txt                 # Dependências do projeto
 └── README.md                        # Documentação
-🎮 Como Executar
-Instale as dependências:
 
-Bash
+## 🎮 Como Executar
+
+1. **Instale as dependências:**
+```bash
 pip install -r requirements.txt
-Para rodar a API (Firewall):
 
-Bash
 python app.py
 # O servidor iniciará em http://localhost:8000
 # Acesse http://localhost:8000/docs para testar via Swagger UI
-Para rodar o Simulador de Ataques:
-(Em um novo terminal)
 
-Bash
 python attack_simulator.py
