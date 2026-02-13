@@ -29,6 +29,10 @@ O modelo final atingiu métricas de nível militar para defesa cibernética:
 | **Recall (Detecção de Ataques)** | **99.99%** |
 | **Falso Positivo (Benign)** | **0.00%** |
 
+> **⚠️ Nota sobre a Acurácia em Produção:**
+> O desempenho de **99.99%** reflete a natureza controlada e sintética dos datasets acadêmicos (CICIDS). Em um ambiente corporativo real, com tráfego ruidoso e imprevisível, espera-se uma redução natural dessas métricas.
+> Para mitigar *Overfitting*, features específicas de topologia (como IPs de Origem/Destino e Timestamps exatos) foram removidas intencionalmente durante o treinamento.
+
 *Obs: O modelo prioriza a detecção da intenção hostil (Binária) sobre a classificação exata do subtipo do ataque, garantindo o bloqueio efetivo.*
 
 ## 🛠️ Tecnologias Utilizadas
