@@ -77,29 +77,17 @@ Para demonstrar a aplicabilidade real do modelo (além dos notebooks), foi desen
 ## 🎮 Como Executar
 
 ### 1️⃣ Instale as dependências
-
 ```bash
 pip install -r requirements.txt
-```
-
-### 2️⃣ Rodar a API (Firewall)
-
-```bash
+2️⃣ Rodar a API (Firewall)
+Bash
 python app.py
-```
+O servidor iniciará em: http://localhost:8000
 
-O servidor iniciará em:  
-👉 http://localhost:8000  
+Documentação Swagger: http://localhost:8000/docs
 
-Documentação Swagger:  
-👉 http://localhost:8000/docs  
-
----
-
-### 3️⃣ Rodar o Simulador de Ataques
-
+3️⃣ Rodar o Simulador de Ataques
 (Em um novo terminal)
 
-```bash
+Bash
 python attack_simulator.py
-```
