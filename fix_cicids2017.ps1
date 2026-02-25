@@ -2,7 +2,8 @@
 #  SCRIPT DE CORREÇÃO V2: CICIDS2017 (Link Validado)
 # =============================================================================
 
-$targetDir = "E:\Estudos_Cybersecurity\Datasets_Cybersecurity\CICIDS2017"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$targetDir = Join-Path -Path $scriptDir -ChildPath "Datasets_Cybersecurity\CICIDS2017"
 $zipFile   = Join-Path -Path $targetDir -ChildPath "MachineLearningCSV.zip"
 
 # LINK JÁ VALIDADO PELO SMOKE TEST (Status 200 OK)

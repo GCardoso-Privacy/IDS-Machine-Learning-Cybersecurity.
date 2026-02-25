@@ -15,9 +15,12 @@ app = FastAPI(
 )
 
 # 2. Carregar o Cérebro (Modelo e Encoder)
-# Ajuste os caminhos se necessário
-MODELO_PATH = "Datasets_Cybersecurity/modelo_xgboost.json"
-ENCODER_PATH = "Datasets_Cybersecurity/label_encoder.joblib"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "Datasets_Cybersecurity")
+
+MODELO_PATH = os.path.join(DATA_DIR, "modelo_xgboost.json")
+ENCODER_PATH = os.path.join(DATA_DIR, "label_encoder.joblib")
 
 print("🔄 Carregando modelos...")
 try:

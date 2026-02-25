@@ -1,6 +1,7 @@
 import os
 import requests
 import zipfile
+import hashlib
 from tqdm import tqdm
 
 # =============================================================================
@@ -20,7 +21,8 @@ URLS = {
     "CICDDoS2019_Part1": {
         "url": "http://205.174.165.80/CICDataset/CICDDoS2019/Dataset/CSV-01-12/01-12.zip",
         "filename": "CICDDoS2019_Treino.zip",
-        "extract_path": os.path.join(DATASET_DIR, "CICDDoS2019", "Treino")
+        "extract_path": os.path.join(DATASET_DIR, "CICDDoS2019", "Treino"),
+        "hash_esperado": "" # TODO: Inserir hash SHA256 real após o primeiro download validado
     }
 }
 
@@ -52,6 +54,22 @@ def extrair_zip(arquivo_zip, destino):
         zip_ref.extractall(destino)
     print("✅ Extração concluída.")
 
+def verificar_hash(arquivo_path, hash_esperado):
+    """Verifica se o arquivo baixado não foi corrompido ou alterado (Man-in-the-Middle)."""
+    sha256_hash = hashlib.sha256()
+    with open(arquivo_path, "rb") as f:
+        # Lê o arquivo em blocos para não estourar a RAM
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    
+    hash_calculado = sha256_hash.hexdigest()
+    if hash_calculado == hash_esperado:
+        print("✅ Hash Verificado: Integridade garantida.")
+        return True
+    else:
+        print(f"❌ PERIGO: Hash inválido! Esperado: {hash_esperado}, Obtido: {hash_calculado}")
+        return False
+
 # =============================================================================
 # EXECUÇÃO PRINCIPAL
 # =============================================================================
@@ -71,6 +89,16 @@ if __name__ == "__main__":
         # 1. Download
         try:
             baixar_arquivo(dados["url"], caminho_zip)
+            
+            # Validação de Segurança (Hash)
+            # Como exemplo, se houver um hash esperado configurado, validamos antes de extrair.
+            if dados.get("hash_esperado"):
+                seguro = verificar_hash(caminho_zip, dados["hash_esperado"])
+                if not seguro:
+                    print("⚠️ Extração abortada por falha de integridade.")
+                    continue
+            else:
+                print("ℹ️ Aviso: Hash não configurado. Verificação ignorada para este arquivo.")
             
             # 2. Extração
             if not os.path.exists(dados["extract_path"]):

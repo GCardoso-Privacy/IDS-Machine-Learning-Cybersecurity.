@@ -7,9 +7,13 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)
 
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "Datasets_Cybersecurity")
+
 # Configurações
 API_URL = "http://localhost:8000/predict"
-DADOS_PATH = "Datasets_Cybersecurity/dataset_limpo.parquet"
+DADOS_PATH = os.path.join(DATA_DIR, "dataset_limpo.parquet")
 
 print(f"{Fore.CYAN}>>> INICIANDO SIMULADOR DE TRÁFEGO DE REDE <<<")
 
