@@ -1,0 +1,18 @@
+venv/
+.venv/
+__pycache__/
+.git/
+.gitignore
+Notebooks/
+
+# Bloqueando o peso pesado
+Datasets_Cybersecurity/
+*.csv
+*.parquet
+*.zip
+*.rar
+*.tar.gz
+
+# 🔑 Resgatando as chaves de dentro do carro (Os modelos)
+!Datasets_Cybersecurity/modelo_xgboost.json
+!Datasets_Cybersecurity/label_encoder.joblib

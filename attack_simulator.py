@@ -3,8 +3,12 @@ import pandas as pd
 import time
 import random
 import json
+import sys
 from colorama import Fore, Style, init
 from sklearn.metrics import f1_score, roc_auc_score
+
+# Força a saída em UTF-8 no Windows para suportar emojis
+sys.stdout.reconfigure(encoding='utf-8')
 
 init(autoreset=True)
 

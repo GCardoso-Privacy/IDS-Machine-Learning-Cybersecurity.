@@ -79,21 +79,30 @@ Como os modelos são muito pesados e dinâmicos, eles não constam no repositór
 - Execute o script `baixar_dados.py` caso ainda não tenha os dados brutos.
 - Execute em ordem os notebooks da pasta `Notebooks/` até rodar o **04_treinamento_modelo.ipynb**. Este notebook salvará os arquivos `modelo_xgboost.json` e `label_encoder.joblib` que a API usa.
 
-1️⃣ Instale as dependências
-bash
-pip install -r requirements.txt
-2️⃣ Rodar a API (Firewall)
-bash
-python app.py
-O servidor iniciará em: http://localhost:8000
-Documentação Swagger: http://localhost:8000/docs
+## 🐳 Executando via Docker (Recomendado)
 
-3️⃣ Rodar o simulador de ataques
-(Em um novo terminal)
+Para garantir 100% de reprodutibilidade e evitar conflitos de ambiente, a API do Firewall pode ser executada em um contêiner Docker isolado (Linux/Python Slim).
 
+**1. Construa a imagem da API:**
+```bash
+docker build -t ai-ids-firewall .
+```
+
+**2. Inicie o contêiner em produção:**
+```bash
+docker run -p 8000:8000 ai-ids-firewall
+```
+
+**3. Teste o Firewall:**
+Em outro terminal, execute o simulador de ataques para bombardear o contêiner:
 ```bash
 python attack_simulator.py
 ```
+
+---
+
+Ou, **Execução via Python (Uso Local)**:
+Instale as dependências com `pip install -r requirements.txt` e inicie a API usando `python app.py`. O servidor local iniciará em http://localhost:8000.
 
 **Exemplo de Saída Esperada:**
 ```text
