@@ -89,8 +89,9 @@ docker build -t ai-ids-firewall .
 ```
 
 **2. Inicie o contêiner em produção:**
+Para que a API acesse os modelos que você gerou localmente (e que não subiram para a imagem por serem ignorados no `.dockerignore`), mapeie a pasta local usando um *Volume*:
 ```bash
-docker run -p 8000:8000 ai-ids-firewall
+docker run -v ./Datasets_Cybersecurity:/app/Datasets_Cybersecurity -p 8000:8000 ai-ids-firewall
 ```
 
 **3. Teste o Firewall:**
