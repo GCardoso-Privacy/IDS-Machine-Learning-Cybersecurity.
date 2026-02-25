@@ -127,3 +127,7 @@ Matriz de Confusão:
 ❌ Deixou Passar   (FN): 0
 ========================================
 ```
+
+> **📊 Nota Analítica sobre o Teste Acima:**
+> O resultado de 100% nesta execução específica reflete o desafio de amostragem no dataset CICIDS. A seleção aleatória capturou uma proporção de 92% de tráfego malicioso (majoritariamente ataques volumétricos como DDoS/DoS, cujas features são facilmente separáveis) contra apenas 8% de tráfego benigno. 
+> Em baterias de testes maiores ou em ataques mais furtivos, a ocorrência de Falsos Positivos é esperada, convergindo o F1-Score para os 99.9% relatados nas métricas globais do projeto.
