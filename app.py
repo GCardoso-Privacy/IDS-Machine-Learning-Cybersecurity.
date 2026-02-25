@@ -6,6 +6,7 @@ import joblib
 import pandas as pd
 import numpy as np
 import time
+from typing import Dict
 
 # 1. Configuração da API
 app = FastAPI(
@@ -23,6 +24,8 @@ MODELO_PATH = os.path.join(DATA_DIR, "modelo_xgboost.json")
 ENCODER_PATH = os.path.join(DATA_DIR, "label_encoder.joblib")
 
 print("🔄 Carregando modelos...")
+model = None
+le = None
 try:
     model = xgb.XGBClassifier()
     model.load_model(MODELO_PATH)
@@ -30,13 +33,15 @@ try:
     print("✅ Sistema de Defesa Ativo e Carregado.")
 except Exception as e:
     print(f"❌ Erro crítico ao carregar modelos: {e}")
+    model = None
+    le = None
 
 # 3. Definir o formato dos dados de entrada (Schema)
 # O usuário envia um JSON, nós validamos aqui
 class NetworkPacket(BaseModel):
     # Dica: Em produção real, você listaria todos os 78 campos.
-    # Aqui, vamos aceitar um dicionário genérico para facilitar o teste.
-    features: dict
+    # Aqui, garantimos que todos os valores sejam float para validação básica.
+    features: Dict[str, float]
 
 @app.get("/")
 def home():
@@ -44,6 +49,12 @@ def home():
 
 @app.post("/predict")
 def predict_packet(packet: NetworkPacket):
+    if model is None or le is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="Serviço indisponível: O modelo de IA não foi carregado. Certifique-se de executar o notebook de treinamento primeiro."
+        )
+
     start_time = time.time()
     
     try:

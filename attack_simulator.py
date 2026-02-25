@@ -31,6 +31,8 @@ except Exception as e:
 # 2. Loop de Ataque
 acertos = 0
 erros = 0
+y_true_bin = []
+y_pred_bin = []
 
 print("-" * 60)
 print(f"{'STATUS':<10} | {'PREVISÃO API':<20} | {'LATÊNCIA':<10} | {'REALIDADE'}")
@@ -59,8 +61,12 @@ for index, row in amostra.iterrows():
             
             print(f"{cor}{status_icon:<10} | {predicao:<20} | {latencia}ms    | (Era: {label_real})")
             acertos += 1
+            
+            # Registro das métricas (Binário: 0 = Benign, 1 = Attack)
+            y_true_bin.append(0 if label_real == 'BENIGN' else 1)
+            y_pred_bin.append(0 if predicao == 'BENIGN' else 1)
         else:
-            print(f"{Fore.YELLOW}⚠️ Erro na API: {response.status_code}")
+            print(f"{Fore.YELLOW}⚠️ Erro na API: {response.text}")
             erros += 1
             
     except Exception as e:
@@ -72,3 +78,27 @@ for index, row in amostra.iterrows():
 
 print("-" * 60)
 print(f"🏁 Teste finalizado. Requisições processadas: {acertos}")
+
+if y_true_bin and len(y_true_bin) == len(y_pred_bin):
+    tp = sum(1 for t, p in zip(y_true_bin, y_pred_bin) if t == 1 and p == 1)
+    tn = sum(1 for t, p in zip(y_true_bin, y_pred_bin) if t == 0 and p == 0)
+    fp = sum(1 for t, p in zip(y_true_bin, y_pred_bin) if t == 0 and p == 1)
+    fn = sum(1 for t, p in zip(y_true_bin, y_pred_bin) if t == 1 and p == 0)
+    
+    acc = (tp + tn) / len(y_true_bin)
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    
+    print("\n" + "="*40)
+    print("📊 RELATÓRIO DE EFICÁCIA (Binário)")
+    print("="*40)
+    print(f"Acurácia (Geral):   {acc:.2%}")
+    print(f"Precisão (Ataques): {precision:.2%}")
+    print(f"Recall   (Ataques): {recall:.2%}")
+    print("-" * 40)
+    print("Matriz de Confusão:")
+    print(f"✅ Passou Legítimo (TN): {tn}")
+    print(f"🛡️ Bloqueou Ataque (TP): {tp}")
+    print(f"⚠️ Falso Alarme    (FP): {fp}")
+    print(f"❌ Deixou Passar   (FN): {fn}")
+    print("="*40)

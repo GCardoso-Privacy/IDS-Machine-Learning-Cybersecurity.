@@ -30,9 +30,8 @@ O modelo final atingiu métricas de nível militar para defesa cibernética:
 | **Recall (Detecção de Ataques)** | **99.99%** |
 | **Falso Positivo (Benign)** | **0.00%** |
 
-> **⚠️ Nota sobre a Acurácia em Produção:**
-> O desempenho de **99.99%** reflete a natureza controlada e sintética dos datasets acadêmicos (CICIDS). Em um ambiente corporativo real, com tráfego ruidoso e imprevisível, espera-se uma redução natural dessas métricas.
-> Para mitigar *Overfitting*, features específicas de topologia (como IPs de Origem/Destino e Timestamps exatos) foram removidas intencionalmente durante o treinamento.
+> **⚠️ Nota sobre a Diferença Multiclasse vs Binária:**
+> O modelo foi desenhado para classificar vários subtipos de ataques (Multiclasse), porém o foco defensivo (Permitir ou Bloquear) é **Binário**. Enquanto a acurácia Multiclasse geral reportada no Notebook 04 é de cerca de 71% devido a dificuldades inerentes com classes minoritárias, a **Acurácia Binária (Ataque vs Benign)** comprovadamente atinge os 99% prometidos, conforme o *Relatório de Defesa* recém-adicionado ao final do **Notebook 04**. O sistema em produção (`app.py`) opera baseado nessa distinção binária (tudo que não for "BENIGN" será bloqueado).
 
 *Obs: O modelo prioriza a detecção da intenção hostil (Binária) sobre a classificação exata do subtipo do ataque, garantindo o bloqueio efetivo.*
 
@@ -75,6 +74,11 @@ Para demonstrar a aplicabilidade real do modelo (além dos notebooks), foi desen
 └── README.md                        # Documentação
 
 🎮 Como executar
+0️⃣ Preparar os Dados e Treinar o Modelo
+Como os modelos são muito pesados e dinâmicos, eles não constam no repositório. Siga o pipeline para gerá-los:
+- Execute o script `baixar_dados.py` caso ainda não tenha os dados brutos.
+- Execute em ordem os notebooks da pasta `Notebooks/` até rodar o **04_treinamento_modelo.ipynb**. Este notebook salvará os arquivos `modelo_xgboost.json` e `label_encoder.joblib` que a API usa.
+
 1️⃣ Instale as dependências
 bash
 pip install -r requirements.txt
