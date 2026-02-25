@@ -91,5 +91,39 @@ Documentação Swagger: http://localhost:8000/docs
 3️⃣ Rodar o simulador de ataques
 (Em um novo terminal)
 
-bash
+```bash
 python attack_simulator.py
+```
+
+**Exemplo de Saída Esperada:**
+```text
+>>> INICIANDO SIMULADOR DE TRÁFEGO DE REDE <<<
+⏳ Carregando munição (pacotes reais do dataset)...
+✅ 100 pacotes carregados para teste.
+------------------------------------------------------------
+STATUS     | PREVISÃO API         | LATÊNCIA   | REALIDADE
+------------------------------------------------------------
+✅ PASSOU   | BENIGN               | 12.4ms     | (Era: BENIGN)
+🛡️ BLOQUEADO | DDoS                 | 15.1ms     | (Era: DDoS)
+✅ PASSOU   | BENIGN               | 11.8ms     | (Era: BENIGN)
+🛡️ BLOQUEADO | PortScan             | 14.3ms     | (Era: PortScan)
+...
+------------------------------------------------------------
+🏁 Teste finalizado. Requisições processadas: 100
+
+========================================
+📊 RELATÓRIO DE EFICÁCIA (Binário)
+========================================
+Acurácia (Geral):   100.00%
+Precisão (Ataques): 100.00%
+Recall   (Ataques): 100.00%
+F1-Score (Balance): 100.00%
+AUC-ROC  (Qualid.): 100.00%
+----------------------------------------
+Matriz de Confusão:
+✅ Passou Legítimo (TN): 42
+🛡️ Bloqueou Ataque (TP): 58
+⚠️ Falso Alarme    (FP): 0
+❌ Deixou Passar   (FN): 0
+========================================
+```

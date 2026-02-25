@@ -4,6 +4,7 @@ import time
 import random
 import json
 from colorama import Fore, Style, init
+from sklearn.metrics import f1_score, roc_auc_score
 
 init(autoreset=True)
 
@@ -33,6 +34,7 @@ acertos = 0
 erros = 0
 y_true_bin = []
 y_pred_bin = []
+y_prob_bin = []
 
 print("-" * 60)
 print(f"{'STATUS':<10} | {'PREVISÃO API':<20} | {'LATÊNCIA':<10} | {'REALIDADE'}")
@@ -54,6 +56,7 @@ for index, row in amostra.iterrows():
             predicao = resultado['prediction']
             acao = resultado['action']
             latencia = resultado['latency_ms']
+            confianca = resultado.get('confidence', 0.0)
             
             # Formatação Visual
             cor = Fore.GREEN if acao == "ALLOW" else Fore.RED
@@ -65,6 +68,10 @@ for index, row in amostra.iterrows():
             # Registro das métricas (Binário: 0 = Benign, 1 = Attack)
             y_true_bin.append(0 if label_real == 'BENIGN' else 1)
             y_pred_bin.append(0 if predicao == 'BENIGN' else 1)
+            
+            # Probabilidade do ataque para AUC-ROC
+            prob_ataque = confianca if predicao != 'BENIGN' else (1.0 - confianca)
+            y_prob_bin.append(prob_ataque)
         else:
             print(f"{Fore.YELLOW}⚠️ Erro na API: {response.text}")
             erros += 1
@@ -88,6 +95,9 @@ if y_true_bin and len(y_true_bin) == len(y_pred_bin):
     acc = (tp + tn) / len(y_true_bin)
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    f1 = f1_score(y_true_bin, y_pred_bin)
+    # Proteção caso a amostra aleatória só tenha 1 classe
+    auc = roc_auc_score(y_true_bin, y_prob_bin) if len(set(y_true_bin)) > 1 else 0.0
     
     print("\n" + "="*40)
     print("📊 RELATÓRIO DE EFICÁCIA (Binário)")
@@ -95,6 +105,8 @@ if y_true_bin and len(y_true_bin) == len(y_pred_bin):
     print(f"Acurácia (Geral):   {acc:.2%}")
     print(f"Precisão (Ataques): {precision:.2%}")
     print(f"Recall   (Ataques): {recall:.2%}")
+    print(f"F1-Score (Balance): {f1:.2%}")
+    print(f"AUC-ROC  (Qualid.): {auc:.2%}")
     print("-" * 40)
     print("Matriz de Confusão:")
     print(f"✅ Passou Legítimo (TN): {tn}")
