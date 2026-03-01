@@ -12,6 +12,16 @@ Este projeto utiliza datasets reais de cibersegurança (CICIDS2017 e CICDDoS2019
 
 O objetivo é simular um **Next-Generation Firewall** que não depende apenas de regras estáticas, mas aprende padrões comportamentais de ataques.
 
+## 🔍 Módulo de Threat Intelligence (Shodan)
+Para elevar o nível para Engenharia de Dados em Tempo Real, este projeto agora conta com **Threat Intelligence via Shodan Academic API**.
+O dataset utilizado é **Híbrido**: ele combina os dados históricos de tráfego de rede (como CICIDS2017 e CICDDoS2019) com **Dados em Tempo Real** minerados ao vivo da internet através do Shodan.
+
+Através deste módulo, criamos um dataset proprietário pesquisando por dispositivos IoT expostos (Ex: porta 23/Telnet) e servidores de banco de dados (MongoDB). Utilizando o algoritmo de Machine Learning não-supervisionado **K-Means**, realizamos a clusterização automática desses dispositivos na internet, agrupando-os entre:
+- **Cluster de Risco (Prováveis Botnets):** Dispositivos com alta contagem de vulnerabilidades atreladas (CVEs) operando em portas inseguras.
+- **Cluster Seguro:** Servidores legítimos modernos e com poucas ou nenhuma vulnerabilidade pública reportada.
+
+O pipeline de dados realiza data extraction, feature engineering automática e salva a dispersão dos clusters para visualização e inteligência de risco.
+
 ## 🚀 Pipeline de Engenharia de Dados
 O projeto foi estruturado em etapas profissionais de Big Data:
 
