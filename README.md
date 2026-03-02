@@ -28,11 +28,11 @@ A jornada do projeto começou com o estudo das fundações da detecção de intr
 ### 🌊 Era 2: Big Data, Realismo e Gargalos de Memória (CICDDoS2019 / CICIDS2017)
 O salto para a realidade moderna. O modelo foi migrado para datasets contemporâneos contendo a exata topologia de infecções reais em alta escala (DDoS, Botnets, Web Attacks).
 * **Desafio de Engenharia:** Lidar com a extração de *PCAPs* convertidos gerou gigantescos CSVs de **8GB+**. Carregá-los diretamente em RAM causava exaustão de memória no sistema.
-* **A Solução:** O projeto implementou pipelines de conversão de **CSV para Parquet** (`/Notebooks/00_etl_conversao.ipynb`) utilizando processamento via *chunking* (PyArrow/Pandas). O tamanho dos dados foi reduzido massivamente, preservando a integridade para o treinamento do modelo **XGBoost Classifier**.
+* **A Solução:** O projeto implementou pipelines de conversão de **CSV para Parquet** (`notebooks/00_etl_conversao.ipynb`) utilizando processamento via *chunking* (PyArrow/Pandas). O tamanho dos dados foi reduzido massivamente, preservando a integridade para o treinamento do modelo **XGBoost Classifier**.
 
 ### 🚀 Era 3: Autonomia & Threat Intelligence (Shodan + MongoDB)
 O patamar atual. Compreendeu-se que treinar modelos com dados "congelados no tempo" (por mais recentes que fossem os datasets) sempre manteria a defesa um passo atrás dos atacantes. A meta evoluiu para a **Criação de um Dataset Próprio e Dinâmico**.
-* **Como funciona:** O foco deixou os *CSV*s e introduziu integrações ativas à API Acadêmica do **Shodan**. Foram desenvolvidas rotinas Python (`shodan_continuous_miner.py`) que mineram ininterruptamente a internet em busca de servidores expostos (ex: instâncias MongoDB e portas Telnet vulneráveis).
+* **Como funciona:** O foco deixou os *CSV*s e introduziu integrações ativas à API Acadêmica do **Shodan**. Foram desenvolvidas rotinas Python (`src/miner/shodan_continuous_miner.py`) que mineram ininterruptamente a internet em busca de servidores expostos (ex: instâncias MongoDB e portas Telnet vulneráveis).
 * **Armazenamento:** Esses *assets* reais, compostos de banners de rede e metadados de vulnerabilidades (CVEs), são agora injetados ao vivo e persistidos estruturalmente no banco **MongoDB** da arquitetura principal.
 
 ---
@@ -55,14 +55,14 @@ Através do script `shodan_insights.py`, em vez de armazenar logs passivos, o si
 
 ### Geopolítica de Vulnerabilidades IoT
 Distribuição em tempo real dos serviços críticos minerados pelo pool base do Shodan.
-> ![Top Countries](/Modelos/top_countries.png)
+> ![Top Countries](/reports/figures/top_countries.png)
 
 ### Sistemas Operacionais na Linha de Frente
 Distribuição de Sistemas Operacionais relatados dos Assets na rede.
-> ![OS Distribution](/Modelos/os_distribution.png)
+> ![OS Distribution](/reports/figures/os_distribution.png)
 
 ### Clusters de Risco K-Means (Ameaças x Servidores Seguros)
-> ![Cluster K-Means](/Modelos/shodan_clusters.png)
+> ![Cluster K-Means](/reports/figures/shodan_clusters.png)
 
 ---
 
@@ -76,13 +76,9 @@ Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva
 3. Crie o arquivo `.env` contendo a `SHODAN_API_KEY`.
 
 ### 🗄️ Iniciar o Cérebro de Persistência (Docker MongoDB)
-Suba o servidor NoSQL do módulo Threat Intelligence.
+Suba o servidor NoSQL do módulo Threat Intelligence. Pode-se utilizar o `docker-compose.yml` da pasta `docker/` ou rodar manualmente:
 ```bash
 docker run -d --name mongo-threat-intel -p 27017:27017 --restart unless-stopped mongo:latest
-```
-Verifique o pulso de saúde da tabela de armazenamento executando a auditoria:
-```bash
-python check_mongo.py
 ```
 
 ### 📡 Ativar Operações de Threat Intelligence Ao Vivo
@@ -90,25 +86,34 @@ Alimente o pipeline minerando dados da borda da internet.
 **1. Ativar Minerador (Deploy in Background):**
 Busca em janelas de 12 horas por servidores sensíveis e executa os Upserts de forma sanitizada.
 ```bash
-python scripts/shodan_continuous_miner.py
+python src/miner/shodan_continuous_miner.py
 ```
 
 **2. Gerar Insights:**
 Compile o estado atual do banco para os gráficos exibidos nesta página.
 ```bash
-python scripts/shodan_insights.py
+python src/miner/shodan_insights.py
 ```
 
 ### 🚦 O Firewall de Produção (XGBoost) e Execução de Testes
 Para inicializar o produto principal defensivo (O Sistema IDS):
-1. Gere os Modelos (Apenas execute `Notebooks/00` ao `04` se for o primeiro deploy) para o XGBoost derivar do treino local de base.
+1. Gere os Modelos (Apenas execute de `notebooks/00` a `04` se for o primeiro deploy) para o XGBoost derivar do treino local de base.
 2. Inicie o Next-Gen Firewall em servidor FastAPI na porta `:8000`:
 ```bash
-docker build -t ai-ids-firewall .
-docker run -v ./Datasets_Cybersecurity:/app/Datasets_Cybersecurity -p 8000:8000 ai-ids-firewall
+docker build -t ai-ids-firewall -f docker/Dockerfile .
+docker run -v ./data:/app/data -v ./models:/app/models -p 8000:8000 ai-ids-firewall
 ```
 3. Abra um terminal adjacente e teste a proteção real realizando testes de estresse com a simulação de pacotes parquets:
 ```bash
-python attack_simulator.py
+# Nota: certifique-se de que os utilitários de simulação estejam acessíveis
+python src/utils/simulator.py
 ```
 > Receba o feedback em tempo real para verificar se a conexão foi listada como **ALLOW** ou **BLOCK**, balizada pela análise de predição comportamental da IA.
+
+---
+
+### 🧽 Organização do Projeto
+Para manter a estrutura de diretórios limpa, organizando dados brutos, processados, cadernos e scripts, execute periodicamente o script padrão de padronização:
+```powershell
+.\organizar_projeto.ps1
+```
