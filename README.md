@@ -76,21 +76,19 @@ Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva
 3. Crie o arquivo `.env` contendo a `SHODAN_API_KEY`.
 
 ### 📥 Passo Um: Datasets e Reproduzibilidade
-Para garantir que o projeto seja testável em diferentes cenários, adotamos uma estratégia de "Duas Eras":
+Para garantir que o projeto seja testável em diferentes cenários, adotamos uma estratégia de "Duas Eras", priorizando o realismo e a alta performance:
 
-#### 🔹 Era 1: Baseline (Atual) - NSL-KDD ✅
-Ideal para revisores e testes rápidos de Machine Learning.
-- **Script:** `python baixar_dados.py` (na raiz)
+#### 🔹 Era 2: Atual & Archival - CICIDS2017 / CICDDoS2019 (Principal) ✅
+O patamar atual. Datasets contemporâneos com topologia de infecções reais (DDoS, Botnets).
+- **Script Principal:** `python baixar_dados.py` (na raiz)
+- **Segurança:** O script realiza o download direto em CLI e inclui validação **SHA-256 Checksum** de integridade.
+> ⚠️ **Nota de Segurança:** O download requer pelo menos 20GB de espaço livre para abrigar e processar os `8GB+` de dados originais localmente.
+
+#### 🔹 Era 1: Baseline (Legacy) - NSL-KDD
+Ideal para revisores e testes rápidos de Machine Learning em computadores com recursos limitados.
+- **Script Secundário:** `python src/miner/baixar_dados_baseline.py`
 - **Tamanho:** ~2MB (Leve)
-- **Uso:** Validação imediata da arquitetura do modelo.
-
-#### 🔹 Era 2: Archival - CICIDS2017 / CICDDoS2019
-Mantido para referência histórica e pesquisa de alta performance (8GB+).
-- **Script:** `python src/miner/baixar_dados.py`
-- **Segurança:** O script realiza verificação de integridade via **SHA-256 Checksum** devido ao download via HTTP.
-- **Notebooks:** Versões legadas que processam esses Parquets estão em `notebooks/legacy/`.
-
-> ⚠️ **Nota de Segurança:** O download da Era 2 exige pelo menos 20GB de espaço em disco para extração e processamento.
+- **Uso:** Validação imediata dos conceitos do modelo sem o gargalo de I/O.
 
 ### 🗄️ Iniciar o Cérebro de Persistência (Docker MongoDB)
 Suba o servidor NoSQL do módulo Threat Intelligence. Pode-se utilizar o `docker-compose.yml` da pasta `docker/` ou rodar manualmente:
