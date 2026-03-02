@@ -1,6 +1,6 @@
 import json
 
-path = r'e:\Estudos_Cybersecurity\Notebooks\04_treinamento_modelo.ipynb'
+path = '../../notebooks/04_treinamento_modelo.ipynb'
 with open(path, 'r', encoding='utf-8') as f:
     nb = json.load(f)
 
@@ -16,7 +16,7 @@ import gc
 import joblib
 
 # =============================================================================
-# 1. CONFIGURAÇÕES
+# 1. CONFIGURAÃ‡Ã•ES
 # =============================================================================
 ARQUIVO_LIMPO = r"../data/processed/dataset_limpo.parquet"
 MODELO_SAIDA = r"../data/processed/modelo_xgboost.json"
@@ -30,16 +30,16 @@ try:
     df = pd.read_parquet(ARQUIVO_LIMPO)
     if AMOSTRA_TREINO < 1.0:
         df = df.sample(frac=AMOSTRA_TREINO, random_state=42)
-        print(f"⚠️ Usando amostra de {AMOSTRA_TREINO*100}% dos dados.")
-    print(f"✅ Dados Carregados: {df.shape[0]} linhas x {df.shape[1]} colunas")
+        print(f"âš ï¸ Usando amostra de {AMOSTRA_TREINO*100}% dos dados.")
+    print(f"âœ… Dados Carregados: {df.shape[0]} linhas x {df.shape[1]} colunas")
 except Exception as e:
-    print(f"❌ Erro ao carregar: {e}")
+    print(f"âŒ Erro ao carregar: {e}")
     exit()
 
 # =============================================================================
-# 2. PREPARAÇÃO (X e y)
+# 2. PREPARAÃ‡ÃƒO (X e y)
 # =============================================================================
-print("\\n🔧 Separando Features (X) e Alvo (y)...")
+print("\\nðŸ”§ Separando Features (X) e Alvo (y)...")
 
 y = df['Label']
 X = df.drop(columns=['Label'])
@@ -47,7 +47,7 @@ X = df.drop(columns=['Label'])
 del df
 gc.collect()
 
-print("🔢 Codificando Labels (Benign -> 0, DDoS -> 1, ...)")
+print("ðŸ”¢ Codificando Labels (Benign -> 0, DDoS -> 1, ...)")
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 joblib.dump(le, LABEL_ENCODER_FILE)
@@ -56,12 +56,12 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
 )
 
-print(f"📊 Treino: {X_train.shape[0]} amostras | Teste: {X_test.shape[0]} amostras")
+print(f"ðŸ“Š Treino: {X_train.shape[0]} amostras | Teste: {X_test.shape[0]} amostras")
 
 # =============================================================================
-# 3. TREINAMENTO (O MOMENTO MÁGICO)
+# 3. TREINAMENTO (O MOMENTO MÃGICO)
 # =============================================================================
-print("\\n🚀 INICIANDO TREINAMENTO DO XGBOOST (Pode demorar!)...")
+print("\\nðŸš€ INICIANDO TREINAMENTO DO XGBOOST (Pode demorar!)...")
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -83,8 +83,8 @@ param_dist = {
 random_search = RandomizedSearchCV(
     estimator=base_model,
     param_distributions=param_dist,
-    n_iter=5, # 5 combinacões limitadas
-    scoring='f1_macro', # Métrica alvo alterada para F1
+    n_iter=5, # 5 combinacÃµes limitadas
+    scoring='f1_macro', # MÃ©trica alvo alterada para F1
     cv=3,
     verbose=2,
     random_state=42,
@@ -94,31 +94,31 @@ random_search = RandomizedSearchCV(
 random_search.fit(X_train, y_train)
 
 model = random_search.best_estimator_
-print(f"🌟 Melhores Hiperparâmetros: {random_search.best_params_}")
-print("✅ MODELO TREINADO COM SUCESSO!")
+print(f"ðŸŒŸ Melhores HiperparÃ¢metros: {random_search.best_params_}")
+print("âœ… MODELO TREINADO COM SUCESSO!")
 
 model.save_model(MODELO_SAIDA)
-print(f"💾 Cérebro salvo em: {MODELO_SAIDA}")
+print(f"ðŸ’¾ CÃ©rebro salvo em: {MODELO_SAIDA}")
 
 # =============================================================================
-# 4. AVALIAÇÃO (A PROVA)
+# 4. AVALIAÃ‡ÃƒO (A PROVA)
 # =============================================================================
-print("\\n📝 APLICANDO A PROVA (PREDIÇÃO NO TESTE)...")
+print("\\nðŸ“ APLICANDO A PROVA (PREDIÃ‡ÃƒO NO TESTE)...")
 
 y_pred = model.predict(X_test)
 
-print("\\n📋 RELATÓRIO DE DESEMPENHO:")
+print("\\nðŸ“‹ RELATÃ“RIO DE DESEMPENHO:")
 print(classification_report(y_test, y_pred, target_names=le.classes_))
 
 plt.figure(figsize=(12, 10))
 cm = confusion_matrix(y_test, y_pred)
 sns.heatmap(cm, annot=False, cmap='Blues', xticklabels=le.classes_, yticklabels=le.classes_)
-plt.title("Matriz de Confusão XGBoost")
+plt.title("Matriz de ConfusÃ£o XGBoost")
 plt.xlabel("O Modelo Previu...")
 plt.ylabel("A Realidade Era...")
 plt.xticks(rotation=90)
 plt.savefig("matriz_xgb.png")
-print("✅ Matriz de confusão salva em matriz_xgb.png")
+print("âœ… Matriz de confusÃ£o salva em matriz_xgb.png")
 # plt.show()
 """
 

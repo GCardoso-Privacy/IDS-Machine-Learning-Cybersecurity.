@@ -75,6 +75,14 @@ Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva
 2. Instale as dependências com `pip install -r requirements.txt`
 3. Crie o arquivo `.env` contendo a `SHODAN_API_KEY`.
 
+### 📥 Passo Um: Obtenção de Dados Baseline
+> **Nota:** Para testar os pipelines anteriores (Random Forest ou preparação para NSL-KDD), execute o script de download.
+
+```bash
+# Faz o download automático e extração local dos dados
+python baixar_dados.py
+```
+
 ### 🗄️ Iniciar o Cérebro de Persistência (Docker MongoDB)
 Suba o servidor NoSQL do módulo Threat Intelligence. Pode-se utilizar o `docker-compose.yml` da pasta `docker/` ou rodar manualmente:
 ```bash

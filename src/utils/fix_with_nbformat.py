@@ -1,6 +1,6 @@
 import nbformat
 
-path = r'e:\Estudos_Cybersecurity\Notebooks\04_treinamento_modelo.ipynb'
+path = '../../notebooks/04_treinamento_modelo.ipynb'
 with open(path, 'r', encoding='utf-8') as f:
     nb = nbformat.read(f, as_version=4)
 

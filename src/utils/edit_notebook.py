@@ -1,7 +1,7 @@
 import json
 import os
 
-notebook_path = r"e:\Estudos_Cybersecurity\Notebooks\04_treinamento_modelo.ipynb"
+notebook_path = '../../notebooks/04_treinamento_modelo.ipynb"
 with open(notebook_path, 'r', encoding='utf-8') as f:
     nb = json.load(f)
 

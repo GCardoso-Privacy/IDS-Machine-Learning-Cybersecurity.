@@ -1,9 +1,23 @@
+"""
+Script de Download Automatizado - Datasets de Cibersegurança
+
+Este script faz o download do dataset 'NSL-KDD' diretamente para o seu disco.
+É necessário ter a API do Kaggle configurada na sua máquina (`~/.kaggle/kaggle.json`).
+
+Requisitos:
+- kaggle
+
+Uso:
+    python baixar_dados.py
+
+Nota: Recomenda-se configurar o 'caminho_ssd' para um disco com espaço suficiente.
+"""
 import kaggle
 import os
 
 # --- CONFIGURAÇÃO DO DIRETÓRIO DE DESTINO ---
 # Define o caminho onde os dados serão salvos de forma relativa ao projeto
-base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+base_dir = os.path.dirname(os.path.abspath(__file__))
 caminho_dados = os.path.join(base_dir, "data", "raw", "NSL-KDD")
 
 # Cria a pasta destino se ela não existir (pra não dar erro)

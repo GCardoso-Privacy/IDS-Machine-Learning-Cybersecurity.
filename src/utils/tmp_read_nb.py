@@ -17,5 +17,5 @@ def read_nb(path):
     except Exception as e:
         print(f'Error reading {path}: {e}')
 
-read_nb('e:\\Estudos_Cybersecurity\\Notebooks\\03_modelo.ipynb')
-read_nb('e:\\Estudos_Cybersecurity\\Notebooks\\04_treinamento_modelo.ipynb')
+read_nb('../../notebooks/03_modelo.ipynb')
+read_nb('../../notebooks/04_treinamento_modelo.ipynb')

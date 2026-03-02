@@ -1,7 +1,7 @@
 import os
 import shutil
 
-base_dir = r"E:\Estudos_Cybersecurity"
+base_dir = '../.."
 os.chdir(base_dir)
 
 # 1. Create directories
@@ -35,7 +35,7 @@ if os.path.exists("Modelos"):
             if os.path.isfile(src_path):
                 shutil.move(src_path, os.path.join("models", file))
 
-# notebooks/: Mover todos os arquivos .ipynb da raiz e Notebooks para cá
+# notebooks/: Mover todos os arquivos .ipynb da raiz e Notebooks para cÃ¡
 for src_folder in ["Notebooks", "."]:
     if os.path.exists(src_folder):
         for file in os.listdir(src_folder):
@@ -55,7 +55,7 @@ if os.path.exists("scripts"):
             if os.path.isfile(src_path):
                 shutil.move(src_path, os.path.join("src", "miner", file))
 
-# reports/figures/: Mover todas as imagens de matrizes de confusão (.png).
+# reports/figures/: Mover todas as imagens de matrizes de confusÃ£o (.png).
 for root, dirs, files in os.walk("."):
     if "Git" in root or ".git" in root or "reports" in root or ".venv" in root:
         continue
