@@ -109,11 +109,3 @@ docker run -v ./data:/app/data -v ./models:/app/models -p 8000:8000 ai-ids-firew
 python src/utils/simulator.py
 ```
 > Receba o feedback em tempo real para verificar se a conexão foi listada como **ALLOW** ou **BLOCK**, balizada pela análise de predição comportamental da IA.
-
----
-
-### 🧽 Organização do Projeto
-Para manter a estrutura de diretórios limpa, organizando dados brutos, processados, cadernos e scripts, execute periodicamente o script padrão de padronização:
-```powershell
-.\organizar_projeto.ps1
-```
