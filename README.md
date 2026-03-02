@@ -49,31 +49,70 @@ A adoção do MongoDB (NoSQL) na "Era 3" foi uma decisão de engenharia delibera
 
 ---
 
-## 👁️‍🗨️ 4. Visualização de Inteligência (Insights Ativos)
+## 📈 4. Validação do Modelo e Métricas (O Teste Real)
+
+A eficácia do nosso preditor XGBoost foi posta à prova utilizando dados da Era 1 (NSL-KDD), demonstrando uma clara superioridade na identificação de anomalias sem bloquear o tráfego legítimo.
+
+### Matriz de Confusão (Benign vs Attack)
+> Como evidenciado abaixo, o firewall apresenta uma taxa de Falsos Negativos virtualmente nula, um requisito fundamental para sistemas de intrusão.
+> ![Confusion Matrix](reports/figures/confusion_matrix.png)
+
+### Curva ROC (Sensibilidade do Sistema)
+> A Curva ROC comprova o desempenho quase perfeito (Area = 0.99) na discriminação das classes em cenários complexos.
+> ![ROC Curve](reports/figures/roc_curve.png)
+
+---
+
+## 🧪 5. Garantia de Qualidade e Testes Automatizados (CI/CD)
+
+Em sistemas de Cybersecurity, **código não testado é código vulnerável**. Adotamos uma suíte rigorosa de testes unitários.
+
+Para rodar os testes localmente, basta executar o `pytest`:
+```bash
+pytest tests/
+```
+Esta suíte certifica que:
+1. **Pipelines de ETL e Extração:** Onde a função correta calcula Checksums SHA-256 e previne a ingestão de pacotes corrompidos do dataset de 8GB.
+2. **Conectividade:** As integrações entre a API do modelo e a camada de persistência via MongoDB operam sob as premissas estritas de design.
+
+---
+
+## 👁️‍🗨️ 6. Visualização de Inteligência (Insights Ativos)
 
 Através do script `shodan_insights.py`, em vez de armazenar logs passivos, o sistema extrai cenários geopolíticos baseados num algoritmo não-supervisionado (K-Means) de clusterização:
 
 ### Geopolítica de Vulnerabilidades IoT
 Distribuição em tempo real dos serviços críticos minerados pelo pool base do Shodan.
-> ![Top Countries](/reports/figures/top_countries.png)
-
-### Sistemas Operacionais na Linha de Frente
-Distribuição de Sistemas Operacionais relatados dos Assets na rede.
-> ![OS Distribution](/reports/figures/os_distribution.png)
+> ![Top Countries](reports/figures/top_countries.png)
 
 ### Clusters de Risco K-Means (Ameaças x Servidores Seguros)
-> ![Cluster K-Means](/reports/figures/shodan_clusters.png)
+> ![Cluster K-Means](reports/figures/shodan_clusters.png)
 
 ---
 
-## 🛠️ 5. Deployment & Setup Completo
+## 🛠️ 7. Deployment & Setup Completo
 
-Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva e de mineração:
+Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva e de mineração utilizando orquestração nativa:
 
 ### Passo Zero: Requerimentos Iniciais
 1. Ative o Python VENV (`python -m venv venv`)
 2. Instale as dependências com `pip install -r requirements.txt`
 3. Crie o arquivo `.env` contendo a `SHODAN_API_KEY`.
+
+### 📥 Passo Um: Datasets e Reproduzibilidade
+Para garantir que o projeto seja testável em diferentes cenários, adotamos uma estratégia de "Duas Eras", priorizando o realismo e a alta performance:
+
+#### 🔹 Era 2: Atual & Archival - CICIDS2017 / CICDDoS2019 (Principal) ✅
+O patamar atual. Datasets contemporâneos com topologia de infecções reais (DDoS, Botnets).
+- **Script Principal:** `python baixar_dados.py` (na raiz)
+- **Segurança:** O script realiza o download direto em CLI e inclui validação **SHA-256 Checksum** de integridade.
+> ⚠️ **Nota de Segurança:** O download requer pelo menos 20GB de espaço livre para abrigar e processar os `8GB+` de dados originais localmente.
+
+#### 🔹 Era 1: Baseline (Legacy) - NSL-KDD
+Ideal para revisores e testes rápidos de Machine Learning em computadores com recursos limitados.
+- **Script Secundário:** `python src/miner/baixar_dados_baseline.py`
+- **Tamanho:** ~2MB (Leve)
+- **Uso:** Validação imediata dos conceitos do modelo sem o gargalo de I/O.
 
 ### 🗄️ Iniciar o Cérebro de Persistência (Docker MongoDB)
 Suba o servidor NoSQL do módulo Threat Intelligence. Pode-se utilizar o `docker-compose.yml` da pasta `docker/` ou rodar manualmente:

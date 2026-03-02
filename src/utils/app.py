@@ -8,14 +8,14 @@ import numpy as np
 import time
 from typing import Dict
 
-# 1. Configuração da API
+# 1. ConfiguraÃ§Ã£o da API
 app = FastAPI(
-    title="🛡️ AI-IDS Firewall API",
-    description="API de Detecção de Intrusão usando XGBoost",
+    title="ðŸ›¡ï¸ AI-IDS Firewall API",
+    description="API de DetecÃ§Ã£o de IntrusÃ£o usando XGBoost",
     version="1.0"
 )
 
-# 2. Carregar o Cérebro (Modelo e Encoder)
+# 2. Carregar o CÃ©rebro (Modelo e Encoder)
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "Datasets_Cybersecurity")
@@ -23,24 +23,24 @@ DATA_DIR = os.path.join(BASE_DIR, "Datasets_Cybersecurity")
 MODELO_PATH = os.path.join(DATA_DIR, "modelo_xgboost.json")
 ENCODER_PATH = os.path.join(DATA_DIR, "label_encoder.joblib")
 
-print("🔄 Carregando modelos...")
+print("ðŸ”„ Carregando modelos...")
 model = None
 le = None
 try:
     model = xgb.XGBClassifier()
     model.load_model(MODELO_PATH)
     le = joblib.load(ENCODER_PATH)
-    print("✅ Sistema de Defesa Ativo e Carregado.")
+    print("âœ… Sistema de Defesa Ativo e Carregado.")
 except Exception as e:
-    print(f"❌ Erro crítico ao carregar modelos: {e}")
+    print(f"âŒ Erro crÃ­tico ao carregar modelos: {e}")
     model = None
     le = None
 
 # 3. Definir o formato dos dados de entrada (Schema)
-# O usuário envia um JSON, nós validamos aqui
+# O usuÃ¡rio envia um JSON, nÃ³s validamos aqui
 class NetworkPacket(BaseModel):
-    # Dica: Em produção real, você listaria todos os 78 campos.
-    # Aqui, garantimos que todos os valores sejam float para validação básica.
+    # Dica: Em produÃ§Ã£o real, vocÃª listaria todos os 78 campos.
+    # Aqui, garantimos que todos os valores sejam float para validaÃ§Ã£o bÃ¡sica.
     features: Dict[str, float]
 
 @app.get("/")
@@ -52,7 +52,7 @@ def predict_packet(packet: NetworkPacket):
     if model is None or le is None:
         raise HTTPException(
             status_code=503, 
-            detail="Serviço indisponível: O modelo de IA não foi carregado. Certifique-se de executar o notebook de treinamento primeiro."
+            detail="ServiÃ§o indisponÃ­vel: O modelo de IA nÃ£o foi carregado. Certifique-se de executar o notebook de treinamento primeiro."
         )
 
     start_time = time.time()
@@ -60,18 +60,18 @@ def predict_packet(packet: NetworkPacket):
     try:
         # 1. Converter JSON para DataFrame (formato que o XGBoost entende)
         # O modelo espera as colunas na mesma ordem do treino.
-        # Aqui assumimos que o JSON já vem com as chaves certas.
+        # Aqui assumimos que o JSON jÃ¡ vem com as chaves certas.
         input_data = pd.DataFrame([packet.features])
         
-        # 2. Fazer a Previsão
+        # 2. Fazer a PrevisÃ£o
         pred_cod = model.predict(input_data)[0]
         pred_prob = model.predict_proba(input_data).max()
         pred_label = le.inverse_transform([pred_cod])[0]
         
-        # 3. Regra de Negócio (Firewall)
+        # 3. Regra de NegÃ³cio (Firewall)
         action = "ALLOW" if pred_label == "BENIGN" else "BLOCK"
         
-        # 4. Logging de Performance (Latência)
+        # 4. Logging de Performance (LatÃªncia)
         latency = round((time.time() - start_time) * 1000, 2) # ms
         
         return {

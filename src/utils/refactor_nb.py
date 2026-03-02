@@ -1,7 +1,7 @@
 import json
 
 def refactor_03():
-    path = r'e:\Estudos_Cybersecurity\Notebooks\03_modelo.ipynb'
+    path = '../../notebooks/03_modelo.ipynb'
     with open(path, 'r', encoding='utf-8') as f:
         nb = json.load(f)
         
@@ -14,21 +14,21 @@ import time
 # --- 1. CARREGAR OS DADOS PROCESSADOS ---
 caminho_dados = r"..\Datasets_Cybersecurity\train_ready.csv"
 
-print("⏳ Carregando dataset processado...")
+print("â³ Carregando dataset processado...")
 df = pd.read_csv(caminho_dados)
 
 X = df.drop('target', axis=1)
 y = df['target']
 
-print(f"📊 Dados carregados! Features: {X.shape[1]} | Linhas: {X.shape[0]}")
+print(f"ðŸ“Š Dados carregados! Features: {X.shape[1]} | Linhas: {X.shape[0]}")
 
-# --- 2. DIVISÃO TREINO vs TESTE ---
+# --- 2. DIVISÃƒO TREINO vs TESTE ---
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
-print(f"✂️ Divisão feita: {len(X_train)} para treino, {len(X_test)} para teste.")
+print(f"âœ‚ï¸ DivisÃ£o feita: {len(X_train)} para treino, {len(X_test)} para teste.")
 
-# --- 3. TREINAMENTO (A Mágica) ---
-print("\\n🌲 Iniciando treinamento da Random Forest com RandomizedSearchCV...")
+# --- 3. TREINAMENTO (A MÃ¡gica) ---
+print("\\nðŸŒ² Iniciando treinamento da Random Forest com RandomizedSearchCV...")
 inicio = time.time()
 
 base_rf = RandomForestClassifier(random_state=42, n_jobs=-1)
@@ -53,14 +53,14 @@ rf_search.fit(X_train, y_train)
 modelo = rf_search.best_estimator_
 
 fim = time.time()
-print(f"🌟 Melhores Params: {rf_search.best_params_}")
-print(f"✅ Modelo treinado em {fim - inicio:.2f} segundos!")
+print(f"ðŸŒŸ Melhores Params: {rf_search.best_params_}")
+print(f"âœ… Modelo treinado em {fim - inicio:.2f} segundos!")
 
 # --- 4. A PROVA FINAL ---
-print("\\n📝 Aplicando a prova nos dados de teste...")
+print("\\nðŸ“ Aplicando a prova nos dados de teste...")
 previsoes = modelo.predict(X_test)
 acuracia = accuracy_score(y_test, previsoes) * 100
-print(f"🏆 Acurácia do Modelo: {acuracia:.2f}%")
+print(f"ðŸ† AcurÃ¡cia do Modelo: {acuracia:.2f}%")
 """
     nb['cells'][0]['source'] = [line + '\n' for line in cell_0_source.split('\n')][:-1]
     with open(path, 'w', encoding='utf-8') as f:
@@ -68,7 +68,7 @@ print(f"🏆 Acurácia do Modelo: {acuracia:.2f}%")
     print("Notebook 03 refatorado.")
 
 def refactor_04():
-    path = r'e:\Estudos_Cybersecurity\Notebooks\04_treinamento_modelo.ipynb'
+    path = '../../notebooks/04_treinamento_modelo.ipynb'
     with open(path, 'r', encoding='utf-8') as f:
         nb = json.load(f)
         
@@ -78,11 +78,11 @@ def refactor_04():
     part_after = []
     state = 0
     for line in old_lines:
-        if '3. TREINAMENTO (O MOMENTO MÁGICO)' in line:
+        if '3. TREINAMENTO (O MOMENTO MÃGICO)' in line:
             if part_before and part_before[-1].startswith('# ======'):
                 part_before.pop()
             state = 1
-        elif '4. AVALIAÇÃO (A PROVA)' in line:
+        elif '4. AVALIAÃ‡ÃƒO (A PROVA)' in line:
             if part_after and part_after[-1].startswith('# ======'):
                 part_after.pop()
             state = 2
@@ -95,9 +95,9 @@ def refactor_04():
                 part_after.append(line)
                 
     new_train_block = """# =============================================================================
-# 3. TREINAMENTO (O MOMENTO MÁGICO)
+# 3. TREINAMENTO (O MOMENTO MÃGICO)
 # =============================================================================
-print("\\n🚀 INICIANDO TREINAMENTO DO XGBOOST (Pode demorar!)...")
+print("\\nðŸš€ INICIANDO TREINAMENTO DO XGBOOST (Pode demorar!)...")
 from sklearn.model_selection import RandomizedSearchCV
 
 base_model = xgb.XGBClassifier(
@@ -129,11 +129,11 @@ random_search = RandomizedSearchCV(
 random_search.fit(X_train, y_train)
 model = random_search.best_estimator_
 
-print(f"🌟 Melhores Hiperparâmetros: {random_search.best_params_}")
-print("✅ MODELO TREINADO COM SUCESSO!")
+print(f"ðŸŒŸ Melhores HiperparÃ¢metros: {random_search.best_params_}")
+print("âœ… MODELO TREINADO COM SUCESSO!")
 
 model.save_model(MODELO_SAIDA)
-print(f"💾 Cérebro salvo em: {MODELO_SAIDA}")
+print(f"ðŸ’¾ CÃ©rebro salvo em: {MODELO_SAIDA}")
 
 """
     full_new_source = "\\n".join(part_before) + "\\n" + new_train_block + "\\n".join(part_after)
