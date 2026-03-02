@@ -75,13 +75,22 @@ Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva
 2. Instale as dependências com `pip install -r requirements.txt`
 3. Crie o arquivo `.env` contendo a `SHODAN_API_KEY`.
 
-### 📥 Passo Um: Obtenção de Dados Baseline
-> **Nota:** Para testar os pipelines anteriores (Random Forest ou preparação para NSL-KDD), execute o script de download.
+### 📥 Passo Um: Datasets e Reproduzibilidade
+Para garantir que o projeto seja testável em diferentes cenários, adotamos uma estratégia de "Duas Eras":
 
-```bash
-# Faz o download automático e extração local dos dados
-python baixar_dados.py
-```
+#### 🔹 Era 1: Baseline (Atual) - NSL-KDD ✅
+Ideal para revisores e testes rápidos de Machine Learning.
+- **Script:** `python baixar_dados.py` (na raiz)
+- **Tamanho:** ~2MB (Leve)
+- **Uso:** Validação imediata da arquitetura do modelo.
+
+#### 🔹 Era 2: Archival - CICIDS2017 / CICDDoS2019
+Mantido para referência histórica e pesquisa de alta performance (8GB+).
+- **Script:** `python src/miner/baixar_dados.py`
+- **Segurança:** O script realiza verificação de integridade via **SHA-256 Checksum** devido ao download via HTTP.
+- **Notebooks:** Versões legadas que processam esses Parquets estão em `notebooks/legacy/`.
+
+> ⚠️ **Nota de Segurança:** O download da Era 2 exige pelo menos 20GB de espaço em disco para extração e processamento.
 
 ### 🗄️ Iniciar o Cérebro de Persistência (Docker MongoDB)
 Suba o servidor NoSQL do módulo Threat Intelligence. Pode-se utilizar o `docker-compose.yml` da pasta `docker/` ou rodar manualmente:

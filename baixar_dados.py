@@ -1,40 +1,30 @@
-"""
-Script de Download Automatizado - Datasets de Cibersegurança
-
-Este script faz o download do dataset 'NSL-KDD' diretamente para o seu disco.
-É necessário ter a API do Kaggle configurada na sua máquina (`~/.kaggle/kaggle.json`).
-
-Requisitos:
-- kaggle
-
-Uso:
-    python baixar_dados.py
-
-Nota: Recomenda-se configurar o 'caminho_ssd' para um disco com espaço suficiente.
-"""
-import kaggle
 import os
+import requests
+import zipfile
 
-# --- CONFIGURAÇÃO DO DIRETÓRIO DE DESTINO ---
-# Define o caminho onde os dados serão salvos de forma relativa ao projeto
+# Configurações Era 1 - Baseline (NSL-KDD)
+URL_NSL_KDD = "https://archive.ics.uci.edu/static/public/183/nsl+kdd.zip"
 base_dir = os.path.dirname(os.path.abspath(__file__))
-caminho_dados = os.path.join(base_dir, "data", "raw", "NSL-KDD")
+DEST_DIR = os.path.join(base_dir, "data", "raw")
+ZIP_PATH = os.path.join(DEST_DIR, "nsl-kdd.zip")
 
-# Cria a pasta destino se ela não existir (pra não dar erro)
-os.makedirs(caminho_dados, exist_ok=True)
-
-print(f"Iniciando download direto para: {caminho_dados}")
-
-try:
-    kaggle.api.authenticate()
-
-    print("Baixando dataset 'helreshek/nsl-kdd'...")
+def setup_nsl_kdd():
+    print("🚀 Iniciando Setup da Era 1 (NSL-KDD)...")
+    if not os.path.exists(DEST_DIR):
+        os.makedirs(DEST_DIR)
     
-    # Faz o download e extrai os dados
-    kaggle.api.dataset_download_files('helreshek/nsl-kdd', path=caminho_dados, unzip=True)
+    print(f"📥 Baixando NSL-KDD...")
+    response = requests.get(URL_NSL_KDD, stream=True)
+    with open(ZIP_PATH, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
     
-    print("✅ Sucesso! Dados salvos localmente.")
-    print("Arquivos:", os.listdir(caminho_dados))
+    print("📦 Extraindo arquivos...")
+    with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
+        zip_ref.extractall(DEST_DIR)
+    
+    os.remove(ZIP_PATH)
+    print(f"✅ NSL-KDD pronto em: {DEST_DIR}")
 
-except Exception as e:
-    print(f"❌ Erro: {e}")
+if __name__ == "__main__":
+    setup_nsl_kdd()
