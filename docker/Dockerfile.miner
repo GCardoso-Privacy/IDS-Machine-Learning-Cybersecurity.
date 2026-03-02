@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Ensure logs flush immediately to docker
+ENV PYTHONUNBUFFERED=1
+
+
+# Install dependencies first for cache leveraging
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy scripts and models
+COPY scripts/ scripts/
+COPY Modelos/ Modelos/
+
+# Set the continuous miner as the entry point
+CMD ["python", "scripts/shodan_continuous_miner.py"]
