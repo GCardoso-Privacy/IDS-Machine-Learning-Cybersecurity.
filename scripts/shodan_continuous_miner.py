@@ -28,21 +28,30 @@ if not SHODAN_API_KEY:
     print(f"{Colors.FAIL}❌ Erro: SHODAN_API_KEY não encontrada no arquivo .env!{Colors.ENDC}")
     exit(1)
 
-# Conexão com MongoDB local
-MONGO_URI = "mongodb://admin:admin123@localhost:27017/"
+# Conexão com MongoDB
+if os.path.exists('/.dockerenv'):
+    MONGO_URI = "mongodb://admin:admin123@mongodb:27017/"
+else:
+    MONGO_URI = "mongodb://admin:admin123@localhost:27017/"
 DB_NAME = "threat_intel"
 COLLECTION_NAME = "shodan_assets"
 
 print(f"{Colors.OKCYAN}🔌 Iniciando conexão com o MongoDB...{Colors.ENDC}")
-try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    db = client[DB_NAME]
-    collection = db[COLLECTION_NAME]
-    # Testa a conexão
-    client.server_info()
-    print(f"{Colors.OKGREEN}✅ Conectado ao MongoDB com sucesso no banco '{DB_NAME}'!{Colors.ENDC}")
-except Exception as e:
-    print(f"{Colors.FAIL}❌ Falha ao conectar ao MongoDB: {e}{Colors.ENDC}")
+max_retries = 6
+for attempt in range(max_retries):
+    try:
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        # Testa a conexão
+        client.server_info()
+        db = client[DB_NAME]
+        collection = db[COLLECTION_NAME]
+        print(f"{Colors.OKGREEN}✅ Conectado ao MongoDB com sucesso no banco '{DB_NAME}'!{Colors.ENDC}")
+        break  # Sai do loop se conectar com sucesso
+    except Exception as e:
+        print(f"{Colors.WARNING}⚠️ Tentativa {attempt + 1}/{max_retries} falhou. Banco não está pronto ainda. Aguardando 5s...{Colors.ENDC}")
+        time.sleep(5)
+else:
+    print(f"{Colors.FAIL}❌ Falha fatal: Não foi possível conectar ao MongoDB após {max_retries} tentativas.{Colors.ENDC}")
     exit(1)
 
 api = shodan.Shodan(SHODAN_API_KEY)
