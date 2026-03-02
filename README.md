@@ -49,26 +49,50 @@ A adoção do MongoDB (NoSQL) na "Era 3" foi uma decisão de engenharia delibera
 
 ---
 
-## 👁️‍🗨️ 4. Visualização de Inteligência (Insights Ativos)
+## 📈 4. Validação do Modelo e Métricas (O Teste Real)
+
+A eficácia do nosso preditor XGBoost foi posta à prova utilizando dados da Era 1 (NSL-KDD), demonstrando uma clara superioridade na identificação de anomalias sem bloquear o tráfego legítimo.
+
+### Matriz de Confusão (Benign vs Attack)
+> Como evidenciado abaixo, o firewall apresenta uma taxa de Falsos Negativos virtualmente nula, um requisito fundamental para sistemas de intrusão.
+> ![Confusion Matrix](reports/figures/confusion_matrix.png)
+
+### Curva ROC (Sensibilidade do Sistema)
+> A Curva ROC comprova o desempenho quase perfeito (Area = 0.99) na discriminação das classes em cenários complexos.
+> ![ROC Curve](reports/figures/roc_curve.png)
+
+---
+
+## 🧪 5. Garantia de Qualidade e Testes Automatizados (CI/CD)
+
+Em sistemas de Cybersecurity, **código não testado é código vulnerável**. Adotamos uma suíte rigorosa de testes unitários.
+
+Para rodar os testes localmente, basta executar o `pytest`:
+```bash
+pytest tests/
+```
+Esta suíte certifica que:
+1. **Pipelines de ETL e Extração:** Onde a função correta calcula Checksums SHA-256 e previne a ingestão de pacotes corrompidos do dataset de 8GB.
+2. **Conectividade:** As integrações entre a API do modelo e a camada de persistência via MongoDB operam sob as premissas estritas de design.
+
+---
+
+## 👁️‍🗨️ 6. Visualização de Inteligência (Insights Ativos)
 
 Através do script `shodan_insights.py`, em vez de armazenar logs passivos, o sistema extrai cenários geopolíticos baseados num algoritmo não-supervisionado (K-Means) de clusterização:
 
 ### Geopolítica de Vulnerabilidades IoT
 Distribuição em tempo real dos serviços críticos minerados pelo pool base do Shodan.
-> ![Top Countries](/reports/figures/top_countries.png)
-
-### Sistemas Operacionais na Linha de Frente
-Distribuição de Sistemas Operacionais relatados dos Assets na rede.
-> ![OS Distribution](/reports/figures/os_distribution.png)
+> ![Top Countries](reports/figures/top_countries.png)
 
 ### Clusters de Risco K-Means (Ameaças x Servidores Seguros)
-> ![Cluster K-Means](/reports/figures/shodan_clusters.png)
+> ![Cluster K-Means](reports/figures/shodan_clusters.png)
 
 ---
 
-## 🛠️ 5. Deployment & Setup Completo
+## 🛠️ 7. Deployment & Setup Completo
 
-Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva e de mineração:
+Abaixo as instruções claras e seqüenciais para compor a arquitetura defensiva e de mineração utilizando orquestração nativa:
 
 ### Passo Zero: Requerimentos Iniciais
 1. Ative o Python VENV (`python -m venv venv`)

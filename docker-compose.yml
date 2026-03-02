@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongo-threat-intel
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - ids_net
+
+  api:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: ai-ids-firewall
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - ids_net
+
+volumes:
+  mongodb_data:
+
+networks:
+  ids_net:
+    driver: bridge
