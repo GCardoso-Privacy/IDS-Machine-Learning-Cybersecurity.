@@ -19,7 +19,7 @@ class Colors:
     ENDC = '\033[0m'
 
 # Carrega as variáveis do .env
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 SHODAN_API_KEY = os.getenv("SHODAN_API_KEY")
 
@@ -45,6 +45,10 @@ for attempt in range(max_retries):
         client.server_info()
         db = client[DB_NAME]
         collection = db[COLLECTION_NAME]
+        
+        # Cria índice composto em 'ip' e 'port' para evitar COLLSCAN durante o upsert
+        collection.create_index([("ip", 1), ("port", 1)], background=True)
+        
         print(f"{Colors.OKGREEN}✅ Conectado ao MongoDB com sucesso no banco '{DB_NAME}'!{Colors.ENDC}")
         break  # Sai do loop se conectar com sucesso
     except Exception as e:

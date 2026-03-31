@@ -105,8 +105,8 @@ Para garantir que o projeto seja testável em diferentes cenários, adotamos uma
 #### 🔹 Era 2: Atual & Archival - CICIDS2017 / CICDDoS2019 (Principal) ✅
 O patamar atual. Datasets contemporâneos com topologia de infecções reais (DDoS, Botnets).
 - **Script Principal:** `python baixar_dados.py` (na raiz)
-- **Segurança:** O script realiza o download direto em CLI e inclui validação **SHA-256 Checksum** de integridade.
-> ⚠️ **Nota de Segurança:** O download requer pelo menos 20GB de espaço livre para abrigar e processar os `8GB+` de dados originais localmente.
+- **Tecnologia:** O script realiza o download veloz automatizado via biblioteca `kagglehub`, garantindo integridade diretamente dos repósitores oficiais.
+> ⚠️ **Nota de Processamento:** O download requer espaço livre e processamento para abrigar e varrer os `8GB+` de dados originais no pipeline local (via chunking de Parquets) antes de treinar os modelos.
 
 #### 🔹 Era 1: Baseline (Legacy) - NSL-KDD
 Ideal para revisores e testes rápidos de Machine Learning em computadores com recursos limitados.
@@ -136,15 +136,15 @@ python src/miner/shodan_insights.py
 
 ### 🚦 O Firewall de Produção (XGBoost) e Execução de Testes
 Para inicializar o produto principal defensivo (O Sistema IDS):
-1. Gere os Modelos (Apenas execute de `notebooks/00` a `04` se for o primeiro deploy) para o XGBoost derivar do treino local de base.
+1. Gere os Modelos (execute sequencialmente de `notebooks/00` a `04` via Jupyter ou `nbconvert` se for o primeiro deploy). A arquitetura lida automaticamente com tratamentos de features raríssimas em memória.
 2. Inicie o Next-Gen Firewall em servidor FastAPI na porta `:8000`:
 ```bash
 docker build -t ai-ids-firewall -f docker/Dockerfile .
-docker run -v ./data:/app/data -v ./models:/app/models -p 8000:8000 ai-ids-firewall
+docker run -d --name ai-ids-firewall -v ${PWD}/data:/app/data -v ${PWD}/models:/app/models -p 8000:8000 ai-ids-firewall
 ```
-3. Abra um terminal adjacente e teste a proteção real realizando testes de estresse com a simulação de pacotes parquets:
+3. Abra um terminal adjacente, certifique-se que o motor subiu, e execute os testes de estresse do simulador nativo (alimentado pelos pacotes parquet validados em teste):
 ```bash
-# Nota: certifique-se de que os utilitários de simulação estejam acessíveis
-python src/utils/simulator.py
+# Iniciando tráfego vetorial via script
+python src/utils/attack_simulator.py
 ```
-> Receba o feedback em tempo real para verificar se a conexão foi listada como **ALLOW** ou **BLOCK**, balizada pela análise de predição comportamental da IA.
+> Receba o feedback visual em tempo real no console verificando as requisições, latências, e se as conexões são listadas como livre (**PASSOU**) ou bloqueadas rigorosamente (**BLOQUEADO**), operando 100% sobre o Cérebro de IA isolado do contêiner.

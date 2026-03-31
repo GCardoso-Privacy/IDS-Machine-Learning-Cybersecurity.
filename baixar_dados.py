@@ -1,42 +1,62 @@
 import os
-import urllib.request
-import hashlib
+import sys
+import shutil
 
-# Configurações Era 2 - Archival (CICIDS2017)
-URL_CICIDS = "http://205.174.165.80/CICDataset/CIC-IDS-2017/Dataset/MachineLearningCSV.zip"
-EXPECTED_HASH = "869e5d4825d48348d7c4826d4827d483" # Hash de exemplo (substitua pelo real do ZIP)
+# Força saída em UTF-8 para evitar erros com emojis no console do Windows
+sys.stdout.reconfigure(encoding='utf-8')
+
+try:
+    import kagglehub
+except ImportError:
+    print("❌ A biblioteca 'kagglehub' não está instalada. Execute: pip install kagglehub")
+    sys.exit(1)
+
+# O script está na raiz (e:\Estudos_Cyber_Oficial)
 base_dir = os.path.dirname(os.path.abspath(__file__))
-DEST_DIR = os.path.join(base_dir, "data", "raw", "cicids2017")
-FILE_NAME = "cicids_full.zip"
 
-def verify_hash(file_path, expected_hash):
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest() == expected_hash
+DATASETS = {
+    "CICIDS2017": {
+        "slug": "chethuhn/network-intrusion-dataset",
+        "dest": os.path.join(base_dir, "data", "raw", "CICIDS2017")
+    },
+    "CICDDoS2019": {
+        "slug": "dhoogla/cicddos2019",
+        "dest": os.path.join(base_dir, "data", "raw", "CICDDoS2019", "Treino")
+    }
+}
 
-def download_progress(block_num, block_size, total_size):
-    read_so_far = block_num * block_size
-    if total_size > 0:
-        percent = read_so_far * 1e2 / total_size
-        print(f"\r progress: {percent:5.1f}%", end="")
+def copy_contents(src, dst):
+    """Copia o conteúdo do diretório src para dst ou arquivo src para dst."""
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+        
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, dirs_exist_ok=True)
+        else:
+            shutil.copy2(s, d)
 
-def fetch_heavy_dataset():
-    print("🏗️ Iniciando Download da Era 2 (CICIDS2017)...")
-    if not os.path.exists(DEST_DIR):
-        os.makedirs(DEST_DIR)
+def fetch_via_kagglehub():
+    print("🚀 Iniciando Download via kagglehub (Era 3)...")
     
-    target_path = os.path.join(DEST_DIR, FILE_NAME)
-    
-    print(f"📡 Baixando de: {URL_CICIDS}")
-    urllib.request.urlretrieve(URL_CICIDS, target_path, reporthook=download_progress)
-    
-    print(f"\n🛡️ Verificando integridade (SHA-256)...")
-    if verify_hash(target_path, EXPECTED_HASH):
-        print("✅ Hash validado! Arquivo íntegro.")
-    else:
-        print("❌ AVISO: Hash não confere. O arquivo pode estar corrompido.")
+    for name, info in DATASETS.items():
+        dest_path = info["dest"]
+        slug = info["slug"]
+        
+        print(f"\n📥 Baixando dataset [{name}] do Kagglehub (Slug: {slug})...")
+        try:
+            # Baixa o dataset
+            path = kagglehub.dataset_download(slug)
+            print(f"✅ Download concluído no cache: {path}")
+            
+            print(f"Copiando arquivos para {dest_path}...")
+            copy_contents(path, dest_path)
+            
+            print(f"✅ {name} copiado com sucesso para a pasta do projeto!")
+        except Exception as e:
+            print(f"❌ Erro ao baixar ou copiar {name}: {e}")
 
 if __name__ == "__main__":
-    fetch_heavy_dataset()
+    fetch_via_kagglehub()

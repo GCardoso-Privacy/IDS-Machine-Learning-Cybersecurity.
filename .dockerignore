@@ -1,0 +1,11 @@
+data/
+models/
+notebooks/
+reports/
+venv/
+.env
+.git/
+.gitignore
+temp_*
+database/
+__pycache__/
