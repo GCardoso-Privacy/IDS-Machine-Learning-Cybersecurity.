@@ -30,10 +30,11 @@ O salto para a realidade moderna. O modelo foi migrado para datasets contemporâ
 * **Desafio de Engenharia:** Lidar com a extração de *PCAPs* convertidos gerou gigantescos CSVs de **8GB+**. Carregá-los diretamente em RAM causava exaustão de memória no sistema.
 * **A Solução:** O projeto implementou pipelines de conversão de **CSV para Parquet** (`notebooks/00_etl_conversao.ipynb`) utilizando processamento via *chunking* (PyArrow/Pandas). O tamanho dos dados foi reduzido massivamente, preservando a integridade para o treinamento do modelo **XGBoost Classifier**.
 
-### 🚀 Era 3: Autonomia & Threat Intelligence (Shodan + MongoDB)
-O patamar atual. Compreendeu-se que treinar modelos com dados "congelados no tempo" (por mais recentes que fossem os datasets) sempre manteria a defesa um passo atrás dos atacantes. A meta evoluiu para a **Criação de um Dataset Próprio e Dinâmico**.
-* **Como funciona:** O foco deixou os *CSV*s e introduziu integrações ativas à API Acadêmica do **Shodan**. Foram desenvolvidas rotinas Python (`src/miner/shodan_continuous_miner.py`) que mineram ininterruptamente a internet em busca de servidores expostos (ex: instâncias MongoDB e portas Telnet vulneráveis).
-* **Armazenamento:** Esses *assets* reais, compostos de banners de rede e metadados de vulnerabilidades (CVEs), são agora injetados ao vivo e persistidos estruturalmente no banco **MongoDB** da arquitetura principal.
+### 🚀 Era 3: Autonomia, Threat Intelligence & Sensor Fusion
+O patamar atual. Compreendeu-se que treinar modelos com dados "congelados no tempo" sempre manteria a defesa um passo atrás dos atacantes. A meta evoluiu para a **Criação de um Dataset Próprio e Dinâmico interligado a uma camada de proteção em tempo real**.
+* **Tríade de Inteligência (Multi-source):** Desenvolvemos rotinas Python altamente otimizadas e conteinerizadas que atuam em multi-threading. Coletamos inteligência ativamente a partir do **Shodan** (Banners de rede, vulnerabilidades de portas) e de forma cruzada do **AlienVault OTX** (pulsos de ameaças, IPs maliciosos).
+* **Sensor Fusion:** Transformamos as anomalias detectadas pelo nosso modelo **XGBoost** e os indícios factuais das APIs externas em um escore unificado de risco para bloqueios proativos.
+* **Armazenamento:** Esses *assets* de Threat Intelligence são persistidos estruturalmente no banco **MongoDB**, compondo um Data Lake ágil para a máquina de inteligência.
 
 ---
 
@@ -46,6 +47,9 @@ A adoção do MongoDB (NoSQL) na "Era 3" foi uma decisão de engenharia delibera
 3. **Superando Gargalos Reais (O Patch de Sanitização):**  
    Durante a ingestão em tempo real de grandes lotes (upserts massivos), o sistema enfrentou crashes silenciosos na conversão BSON (*BSON 8-byte integer limits exceeded*) e o bloqueio de chaves contendo pontos ou cifrões, herdadas nativamente de bibliotecas de rede em JavaScript reportadas pelo Shodan. 
    **A solução de Engenharia:** O patch implementado atua como um sanitizador recursivo customizado de estruturas de dados logo antes da camada do driver do `pymongo`. Ele substitui proativamente chaves defeituosas e converte dinamicamente tipos gigantes (*integers* fora do limite) para *floats* ou *strings*. Isso mitiga a falha de overflow em inteiros BSON de 64 bits, salvando o fluxo do pipeline em tempo real sem interrupções e sem descartar lotes inteiros de inteligência.
+
+4. **Otimização de Performance em Larga Escala:**  
+   Com a ingestão contínua, evitamos o clássico problema de *COLLSCAN* (varreduras completas no banco causadoras de *Slow Queries*) criando um **Índice Composto (Compound Index)** nas chaves `ip` e `port`. Garantimos que as operações de `upsert` na coleção `threat_intel.shodan_assets` sejam incrivelmente rápidas, mantendo o ecossistema performático mesmo com centenas de milhares de ativos mapeados.
 
 ---
 
@@ -104,29 +108,25 @@ Para garantir que o projeto seja testável em diferentes cenários, adotamos uma
 
 #### 🔹 Era 2: Atual & Archival - CICIDS2017 / CICDDoS2019 (Principal) ✅
 O patamar atual. Datasets contemporâneos com topologia de infecções reais (DDoS, Botnets).
-- **Script Principal:** `python baixar_dados.py` (na raiz)
-- **Tecnologia:** O script realiza o download veloz automatizado via biblioteca `kagglehub`, garantindo integridade diretamente dos repósitores oficiais.
-> ⚠️ **Nota de Processamento:** O download requer espaço livre e processamento para abrigar e varrer os `8GB+` de dados originais no pipeline local (via chunking de Parquets) antes de treinar os modelos.
+- **Script Principal:** `python src/miner/baixar_dados.py`
+- **Tecnologia:** Download veloz e inteligente implementado com a API nativa moderna `kagglehub`. Mitigamos erros clássicos de "403 Forbidden" das bibliotecas legadas, efetuando cache automático e garantindo integridade diretamente dos repositórios oficiais.
+> ⚠️ **Nota de Processamento:** Requer espaço livre de disco para abrigar e varrer os `8GB+` de dados originais no pipeline local (via chunking de Parquets) antes de treinar os modelos.
 
 #### 🔹 Era 1: Baseline (Legacy) - NSL-KDD
 Ideal para revisores e testes rápidos de Machine Learning em computadores com recursos limitados.
-- **Script Secundário:** `python src/miner/baixar_dados_baseline.py`
+- **Script Secundário:** `python src/miner/baixar_dados_era1.py`
 - **Tamanho:** ~2MB (Leve)
 - **Uso:** Validação imediata dos conceitos do modelo sem o gargalo de I/O.
 
-### 🗄️ Iniciar o Cérebro de Persistência (Docker MongoDB)
-Suba o servidor NoSQL do módulo Threat Intelligence. Pode-se utilizar o `docker-compose.yml` da pasta `docker/` ou rodar manualmente:
+### 🗄️ Iniciar a Arquitetura de Threat Intelligence (Docker Compose)
+Unificamos os microsserviços do cérebro de inteligência contínua!
+O orquestrador automatiza a subida segura da engine **MongoDB** (protegida por autenticação) juntamente com o Minerador CTI, isolando todo o processo.
+Na raiz do projeto, inicialize a infraestrutura (banco de dados e os mineradores em background):
 ```bash
-docker run -d --name mongo-threat-intel -p 27017:27017 --restart unless-stopped mongo:latest
+docker-compose up -d
 ```
-
-### 📡 Ativar Operações de Threat Intelligence Ao Vivo
-Alimente o pipeline minerando dados da borda da internet.
-**1. Ativar Minerador (Deploy in Background):**
-Busca em janelas de 12 horas por servidores sensíveis e executa os Upserts de forma sanitizada.
-```bash
-python src/miner/shodan_continuous_miner.py
-```
+* **Conectividade GUI Externa:** Acesso disponível para administração pelo **MongoDB Compass** via porta `27017` utilizando as credenciais definidas no ambiente.
+* **Segurança e Mineração:** O script interno (`miner`) herda credenciais injetadas diretamente pelo docker-compose sem expô-las no código. O minerador roda isolado num container buscando proativamente assinaturas via **Shodan** e APIs auxiliares e efetuando upserts dinâmicos otimizados no banco principal.
 
 **2. Gerar Insights:**
 Compile o estado atual do banco para os gráficos exibidos nesta página.
