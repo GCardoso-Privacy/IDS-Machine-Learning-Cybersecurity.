@@ -6,6 +6,7 @@ import json
 import sys
 from colorama import Fore, Style, init
 from sklearn.metrics import f1_score, roc_auc_score
+import pymongo
 
 # ForÃ§a a saÃ­da em UTF-8 no Windows para suportar emojis
 sys.stdout.reconfigure(encoding='utf-8')
@@ -41,16 +42,52 @@ y_true_bin = []
 y_pred_bin = []
 y_prob_bin = []
 
-print("-" * 60)
-print(f"{'STATUS':<10} | {'PREVISÃƒO API':<20} | {'LATÃŠNCIA':<10} | {'REALIDADE'}")
-print("-" * 60)
+print("-" * 80)
+print(f"{'STATUS':<15} | {'PREVISÃO API':<20} | {'LATÊNCIA':<8} | {'CAMADA':<15} | {'REALIDADE/ORIGEM'}")
+print("-" * 80)
+
+# TESTE ESPECIAL DA MUNIÇÃO DE PRECISÃO (ERA 3 - SHODAN)
+print(f"\n{Fore.YELLOW}>>> INJETANDO TESTE DA CAMADA 1: IP VULNERÁVEL OBTIDO PELO SHODAN <<<{Style.RESET_ALL}")
+try:
+    mongo_client = pymongo.MongoClient("mongodb://admin:admin123@localhost:27017/", serverSelectionTimeoutMS=2000)
+    threat_coll = mongo_client["threat_intel"]["shodan_assets"]
+    bad_asset = threat_coll.find_one()  # Pega qualquer um que o Shodan minerou
+    
+    if bad_asset:
+        bad_ip = bad_asset["ip"]
+        # Pega uma amostra aleatória benigna
+        row = amostra[amostra['Label'] == 'BENIGN'].iloc[0] if 'BENIGN' in amostra['Label'].values else amostra.iloc[0]
+        features = row.drop('Label').to_dict()
+        
+        # Mas enviamos com o IP do Shodan
+        payload = {"source_ip": bad_ip, "features": features}
+        
+        response = requests.post(API_URL, json=payload)
+        if response.status_code == 200:
+            resultado = response.json()
+            acao = resultado['action']
+            cor = Fore.MAGENTA if acao == "BLOCK" else Fore.GREEN
+            layer = resultado.get('layer', 'Unknown')
+            print(f"{cor}🔒 SUPER BLOCK  | {resultado['prediction']:<20} | {resultado['latency_ms']}ms   | {layer:<15} | (IP CTI: {bad_ip}){Style.RESET_ALL}")
+        else:
+            print("Erro API: ", response.text)
+    else:
+        print(f"⚠️ Banco Shodan vazio. Não é possível testar a Camada 1.")
+except Exception as e:
+    print(f"⚠️ Erro ao conectar no MongoDB para teste CTI: {e}")
+
+time.sleep(1)
+print(f"\n{Fore.CYAN}>>> INICIANDO TRÁFEGO COMUM (CAMADA 2 - COMPORTAMENTO) <<<{Style.RESET_ALL}")
 
 for index, row in amostra.iterrows():
-    # Prepara o pacote (Remove a Label, pois o modelo nÃ£o pode ver a resposta)
+    # Prepara o pacote (Remove a Label, pois o modelo não pode ver a resposta)
     label_real = row['Label']
     features = row.drop('Label').to_dict()
     
-    payload = {"features": features}
+    # Gera um IP aleatório falso para passar batido pela Camada 1
+    random_ip = f"{random.randint(1,254)}.{random.randint(1,254)}.{random.randint(1,254)}.{random.randint(1,254)}"
+    
+    payload = {"source_ip": random_ip, "features": features}
     
     try:
         # Envia para o Sandbox (API)
@@ -62,12 +99,13 @@ for index, row in amostra.iterrows():
             acao = resultado['action']
             latencia = resultado['latency_ms']
             confianca = resultado.get('confidence', 0.0)
+            layer = resultado.get('layer', 'Desconhecida')
             
-            # FormataÃ§Ã£o Visual
+            # Formatação Visual
             cor = Fore.GREEN if acao == "ALLOW" else Fore.RED
-            status_icon = "ðŸ›¡ï¸ BLOQUEADO" if acao == "BLOCK" else "âœ… PASSOU"
+            status_icon = "🛡️  BLOQUEADO" if acao == "BLOCK" else "✅ PASSOU"
             
-            print(f"{cor}{status_icon:<10} | {predicao:<20} | {latencia}ms    | (Era: {label_real})")
+            print(f"{cor}{status_icon:<15} | {predicao:<20} | {latencia}ms   | {layer:<15} | (Era: {label_real}){Style.RESET_ALL}")
             acertos += 1
             
             # Registro das mÃ©tricas (BinÃ¡rio: 0 = Benign, 1 = Attack)
