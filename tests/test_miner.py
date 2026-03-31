@@ -1,7 +1,7 @@
 import os
 import pytest
 import hashlib
-from src.miner.baixar_dados_baseline import verify_hash
+from baixar_dados import verify_hash
 
 # Since the miner logic was split, we test verify_hash from baseline/miner
 # Let's mock a file and hash to test the specific logic.

@@ -11,7 +11,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # 5. Instala as dependências da nossa API
-RUN pip install --no-cache-dir -r requirements.txt
+# 5. Instala as dependências da expessas da nossa API para evitar bibliotecas de interface pesadas do requirements.txt
+RUN pip install --no-cache-dir fastapi uvicorn xgboost pandas numpy scikit-learn joblib pydantic
 
 # 6. Copia o resto do código do projeto para dentro do contêiner
 COPY . .
@@ -20,4 +21,4 @@ COPY . .
 EXPOSE 8000
 
 # 8. O comando que liga o Firewall quando o contêiner iniciar
-CMD ["python", "app.py"]
+CMD ["python", "src/utils/app.py"]

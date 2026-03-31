@@ -13,10 +13,11 @@ sys.stdout.reconfigure(encoding='utf-8')
 init(autoreset=True)
 
 import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "Datasets_Cybersecurity")
+# A raiz fica três níveis acima (src/utils/attack_simulator.py -> src/utils -> src -> raiz)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR = os.path.join(BASE_DIR, "data", "processed")
 
-# ConfiguraÃ§Ãµes
+# Configurações
 API_URL = "http://localhost:8000/predict"
 DADOS_PATH = os.path.join(DATA_DIR, "dataset_limpo.parquet")
 

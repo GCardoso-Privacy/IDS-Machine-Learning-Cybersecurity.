@@ -17,11 +17,12 @@ app = FastAPI(
 
 # 2. Carregar o CÃ©rebro (Modelo e Encoder)
 import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "Datasets_Cybersecurity")
+# Caminha para a raiz do projeto: src/utils/app.py -> src/utils -> src -> raiz
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-MODELO_PATH = os.path.join(DATA_DIR, "modelo_xgboost.json")
-ENCODER_PATH = os.path.join(DATA_DIR, "label_encoder.joblib")
+MODELO_PATH = os.path.join(MODEL_DIR, "modelo_xgboost.json")
+ENCODER_PATH = os.path.join(MODEL_DIR, "label_encoder.joblib")
 
 print("ðŸ”„ Carregando modelos...")
 model = None
